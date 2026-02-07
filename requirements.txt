@@ -1,9 +1,7 @@
 pandas
 numpy
 scikit-learn
-mlflow
-dvc
-pyyaml
 joblib
+pyyaml
 matplotlib
-streamlit
+streamlit>=1.30.0
