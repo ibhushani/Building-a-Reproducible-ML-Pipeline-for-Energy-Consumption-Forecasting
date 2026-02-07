@@ -1,0 +1,32 @@
+stages:
+  ingest:
+    cmd: python src/ingestion.py
+    outs:
+      - data/processed/data.csv
+
+  preprocess:
+    cmd: python src/preprocessing.py
+    deps:
+      - data/processed/data.csv
+    outs:
+      - data/processed/cleaned.csv
+
+  features:
+    cmd: python src/feature_engineering.py
+    deps:
+      - data/processed/cleaned.csv
+    outs:
+      - data/processed/features.csv
+
+  train:
+    cmd: python src/train.py
+    deps:
+      - data/processed/features.csv
+      - params.yaml
+    outs:
+      - model.pkl
+
+  evaluate:
+    cmd: python src/evaluate.py
+    deps:
+      - model.pkl
