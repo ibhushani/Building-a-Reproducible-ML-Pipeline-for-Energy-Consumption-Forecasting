@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
+import os
 from datetime import datetime
 
 # Page config
@@ -46,14 +47,61 @@ st.markdown("""
 st.markdown('<h1 class="main-header">⚡ Energy Consumption Predictor</h1>', unsafe_allow_html=True)
 st.markdown("### Predict household energy consumption using Machine Learning")
 
-# Load model
+# Load model with fallback
 @st.cache_resource
 def load_model():
-    return joblib.load("model.pkl")
+    model_path = "model.pkl"
+    
+    # Check if model exists and is valid (not a Git LFS pointer)
+    if os.path.exists(model_path):
+        file_size = os.path.getsize(model_path)
+        # LFS pointer files are small (~130 bytes), real model is ~38MB
+        if file_size > 1000:
+            try:
+                return joblib.load(model_path), "loaded"
+            except Exception as e:
+                st.warning(f"Could not load saved model: {e}")
+    
+    # Fallback: Train a simple model
+    st.info("🔄 Training a demo model (saved model not available on cloud)...")
+    from sklearn.ensemble import RandomForestRegressor
+    
+    # Create synthetic training data based on typical energy patterns
+    np.random.seed(42)
+    n_samples = 5000
+    
+    # Generate realistic feature distributions
+    data = {
+        'Global_reactive_power': np.random.uniform(0, 1, n_samples),
+        'Voltage': np.random.uniform(220, 255, n_samples),
+        'Global_intensity': np.random.uniform(0, 50, n_samples),
+        'Sub_metering_1': np.random.uniform(0, 100, n_samples),
+        'Sub_metering_2': np.random.uniform(0, 100, n_samples),
+        'Sub_metering_3': np.random.uniform(0, 50, n_samples),
+        'hour': np.random.randint(0, 24, n_samples),
+        'day': np.random.randint(1, 32, n_samples),
+        'month': np.random.randint(1, 13, n_samples),
+        'weekday': np.random.randint(0, 7, n_samples)
+    }
+    
+    X = pd.DataFrame(data)
+    # Target based on intensity (main correlation in real data)
+    y = (X['Global_intensity'] * 0.2 + 
+         X['Sub_metering_3'] * 0.02 + 
+         np.random.normal(0, 0.5, n_samples))
+    y = np.clip(y, 0, 15)
+    
+    model = RandomForestRegressor(n_estimators=50, max_depth=10, n_jobs=-1, random_state=42)
+    model.fit(X, y)
+    
+    return model, "demo"
 
 try:
-    model = load_model()
-    st.success("✅ Model loaded successfully!")
+    model, model_type = load_model()
+    if model_type == "loaded":
+        st.success("✅ Production model loaded successfully!")
+    else:
+        st.warning("⚠️ Using demo model (for full accuracy, run locally with the trained model)")
 except Exception as e:
     st.error(f"❌ Error loading model: {e}")
     st.stop()
