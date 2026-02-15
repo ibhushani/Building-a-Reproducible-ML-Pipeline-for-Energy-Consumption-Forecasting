@@ -241,7 +241,7 @@ This project demonstrates how to build a **production-style ML workflow**, integ
 
 ## 👨‍💻 Author
 
-**Bhushan Sharma** & **Rishabh Mishra**
+**Bhushan Sharma**
 MLOps Project — Energy Consumption Forecasting
 
 ---
@@ -249,5 +249,3 @@ MLOps Project — Energy Consumption Forecasting
 Agar chahe to next mai:
 
 * `requirements.txt`
-* GitHub push commands
-  bhi de du 🔥
