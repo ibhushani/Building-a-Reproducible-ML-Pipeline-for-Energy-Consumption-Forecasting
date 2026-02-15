@@ -245,7 +245,3 @@ This project demonstrates how to build a **production-style ML workflow**, integ
 MLOps Project — Energy Consumption Forecasting
 
 ---
-
-Agar chahe to next mai:
-
-* `requirements.txt`
